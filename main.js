@@ -20,13 +20,17 @@ function initThemeToggle() {
   const themeToggleBtn = document.getElementById('theme-toggle');
   if (!themeToggleBtn) return;
 
-  // Retrieve saved preference or default to dark
-  const savedTheme = localStorage.getItem('portfolio-theme') || 'dark';
+  // Default to light (white background with red wording)
+  let savedTheme = localStorage.getItem('portfolio-theme');
+  if (!savedTheme || savedTheme === 'dark') {
+    savedTheme = 'light';
+    localStorage.setItem('portfolio-theme', 'light');
+  }
   document.documentElement.setAttribute('data-theme', savedTheme);
 
   themeToggleBtn.addEventListener('click', () => {
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('portfolio-theme', newTheme);
