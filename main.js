@@ -63,24 +63,17 @@ function initMobileNav() {
 }
 
 /* ==========================================================================
-   3. CONTACT FORM — SENDS REAL EMAIL + TEXT VIA FORMSUBMIT.CO
+   3. CONTACT FORM — SENDS REAL EMAIL VIA WEB3FORMS
    ========================================================================== */
 
-// Where messages go. The first address receives the email; everything in
-// CC_LIST gets a copy. The SMS gateway address turns that copy into a text.
+// Each Web3Forms access key is tied to ONE inbox. Get a free key for each
+// email at https://web3forms.com (enter the email, the key arrives in that
+// inbox), then paste it below. Every message is sent to every inbox listed.
 const CONTACT_CONFIG = {
-  primaryEmail: 'azavian10@icloud.com',
-  ccEmails: ['awil849@lsu.edu'],
-
-  // Text message to (225) 506-6289 via the carrier's email-to-text gateway.
-  // Set this to the one matching the phone's carrier:
-  //   Verizon:        2255066289@vtext.com
-  //   T-Mobile:       2255066289@tmomail.net
-  //   US Cellular:    2255066289@email.uscc.net
-  //   Boost Mobile:   2255066289@sms.myboostmobile.com
-  //   Cricket:        2255066289@mms.cricketwireless.net
-  // Leave it as '' to send email only.
-  smsGateway: ''
+  recipients: [
+    { email: 'azavian10@icloud.com', accessKey: '673ecb6c-3028-4b7f-801e-40685e1a37a7' },
+    { email: 'awil849@lsu.edu', accessKey: 'd491e284-d960-42f1-a360-2c5d8db84549' }
+  ]
 };
 
 function initContactForm() {
@@ -108,35 +101,41 @@ function initContactForm() {
       Sending...
     `;
 
-    const cc = [...CONTACT_CONFIG.ccEmails];
-    if (CONTACT_CONFIG.smsGateway) cc.push(CONTACT_CONFIG.smsGateway);
+    const recipients = CONTACT_CONFIG.recipients.filter(
+      r => r.accessKey && !r.accessKey.startsWith('PASTE_')
+    );
+
+    const sendTo = (recipient) =>
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          access_key: recipient.accessKey,
+          subject: `Portfolio message from ${name}: ${subject}`,
+          from_name: 'A\'Zavian Willis Portfolio',
+          name: name,
+          email: email,          // shown in the email so you can reply
+          replyto: email,
+          message: message
+        })
+      }).then(async (res) => {
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) {
+          throw new Error(`${recipient.email}: ${data.message || res.status}`);
+        }
+      });
 
     try {
-      const response = await fetch(
-        `https://formsubmit.co/ajax/${CONTACT_CONFIG.primaryEmail}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            name: name,
-            email: email,          // becomes the Reply-To address
-            subject: subject,
-            message: message,
-            _subject: `Portfolio message from ${name}: ${subject}`,
-            _cc: cc.join(','),
-            _template: 'basic',    // plain layout so it reads well as a text
-            _captcha: 'false'
-          })
-        }
-      );
+      if (!recipients.length) throw new Error('No Web3Forms access keys set');
 
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok || result.success === 'false' || result.success === false) {
-        throw new Error(result.message || 'Send failed');
-      }
+      const results = await Promise.allSettled(recipients.map(sendTo));
+      const failures = results.filter(r => r.status === 'rejected');
+      failures.forEach(f => console.error('Contact form error:', f.reason));
+
+      if (failures.length === results.length) throw new Error('All sends failed');
 
       contactForm.reset();
       showToast('Thank you! Your message has been sent to A\'Zavian Willis.');
@@ -144,7 +143,7 @@ function initContactForm() {
       console.error('Contact form error:', err);
       // Fallback: open the visitor's own email app with everything filled in
       const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
-      const to = [CONTACT_CONFIG.primaryEmail, ...CONTACT_CONFIG.ccEmails].join(',');
+      const to = CONTACT_CONFIG.recipients.map(r => r.email).join(',');
       window.location.href =
         `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${body}`;
       showToast('Opening your email app to finish sending...');
