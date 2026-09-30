@@ -8,28 +8,44 @@
 :root,
 [data-theme="light"] {
   /* Color Palette - Warm Cream Background with Subdued Deep Red Wording */
-  --bg-primary: #f5ecdc;         /* Natural warm cream */
-  --bg-secondary: #ede1cb;       /* Deeper warm ivory/cream */
-  --bg-card: #fbf5ea;            /* Crisp warm white card */
-  --bg-card-hover: #f8efe0;      /* Gentle cream hover */
+  --bg-primary: #f5ecdc;
+  /* Natural warm cream */
+  --bg-secondary: #ede1cb;
+  /* Deeper warm ivory/cream */
+  --bg-card: #fbf5ea;
+  /* Crisp warm white card */
+  --bg-card-hover: #f8efe0;
+  /* Gentle cream hover */
   --bg-card-solid: #fbf5ea;
   --bg-glass: rgba(245, 236, 220, 0.94);
-  
+
+  /* Background pattern: lighter cream diamonds with fine red outlines and red dots */
+  --bg-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpolygon points='24,5 43,24 24,43 5,24' fill='%23fcf7ee' fill-opacity='0.75' stroke='%23a83434' stroke-opacity='0.09' stroke-width='1'/%3E%3Ccircle cx='24' cy='24' r='1.3' fill='%23a83434' fill-opacity='0.16'/%3E%3Ccircle cx='0' cy='0' r='1.6' fill='%23a83434' fill-opacity='0.22'/%3E%3Ccircle cx='48' cy='0' r='1.6' fill='%23a83434' fill-opacity='0.22'/%3E%3Ccircle cx='0' cy='48' r='1.6' fill='%23a83434' fill-opacity='0.22'/%3E%3Ccircle cx='48' cy='48' r='1.6' fill='%23a83434' fill-opacity='0.22'/%3E%3C/svg%3E");
+
   --border-subtle: rgba(138, 44, 44, 0.12);
   --border-glow: rgba(168, 52, 52, 0.28);
   --border-strong: rgba(138, 44, 44, 0.22);
 
-  --text-main: #8a2c2c;          /* Deep rich cardinal / burgundy red */
-  --text-muted: #943838;         /* Warm subdued mahogany red */
-  --text-dim: #a83434;           /* Muted red for dates & tags */
+  --text-main: #8a2c2c;
+  /* Deep rich cardinal / burgundy red */
+  --text-muted: #943838;
+  /* Warm subdued mahogany red */
+  --text-dim: #a83434;
+  /* Muted red for dates & tags */
 
   /* Subdued Red Accents (Sophisticated, Not Neon) */
-  --accent-primary: #a83434;        /* Deep Cardinal Red */
-  --accent-primary-hover: #8a2c2c;  /* Dark Burgundy Red */
-  --accent-secondary: #bd4242;      /* Warm Crimson */
-  --accent-tertiary: #7a2e33;       /* Maroon */
-  --accent-emerald: #a83434;        /* Matching Red */
-  --accent-amber: #b84c4c;          /* Warm Terracotta Red */
+  --accent-primary: #a83434;
+  /* Deep Cardinal Red */
+  --accent-primary-hover: #8a2c2c;
+  /* Dark Burgundy Red */
+  --accent-secondary: #bd4242;
+  /* Warm Crimson */
+  --accent-tertiary: #7a2e33;
+  /* Maroon */
+  --accent-emerald: #a83434;
+  /* Matching Red */
+  --accent-amber: #b84c4c;
+  /* Warm Terracotta Red */
 
   --gradient-brand: linear-gradient(135deg, #bd4242 0%, #a83434 50%, #8a2c2c 100%);
   --gradient-glow: linear-gradient(135deg, rgba(189, 66, 66, 0.12) 0%, rgba(168, 52, 52, 0.12) 50%, rgba(138, 44, 44, 0.12) 100%);
@@ -68,6 +84,7 @@
   --bg-card-hover: rgba(52, 18, 18, 0.95);
   --bg-card-solid: #220b0b;
   --bg-glass: rgba(18, 7, 7, 0.88);
+  --bg-pattern: none;
 
   --border-subtle: rgba(220, 70, 70, 0.18);
   --border-glow: rgba(220, 70, 70, 0.35);
@@ -87,7 +104,9 @@
 /* ==========================================================================
    RESET & BASE STYLES
    ========================================================================== */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -107,10 +126,12 @@ body {
   overflow-x: hidden;
   min-height: 100vh;
   position: relative;
-  background-image: 
+  background-image:
     radial-gradient(circle at 15% 20%, rgba(168, 52, 52, 0.035) 0%, transparent 45%),
     radial-gradient(circle at 85% 65%, rgba(138, 44, 44, 0.025) 0%, transparent 45%),
-    radial-gradient(circle at 50% 90%, rgba(189, 66, 66, 0.025) 0%, transparent 40%);
+    radial-gradient(circle at 50% 90%, rgba(189, 66, 66, 0.025) 0%, transparent 40%),
+    var(--bg-pattern);
+  background-size: auto, auto, auto, 48px 48px;
   background-attachment: fixed;
   transition: background-color var(--transition-base), color var(--transition-base);
 }
@@ -127,7 +148,10 @@ img {
   display: block;
 }
 
-button, input, textarea, select {
+button,
+input,
+textarea,
+select {
   font-family: inherit;
   font-size: inherit;
   color: inherit;
@@ -139,7 +163,8 @@ button {
   background: none;
 }
 
-ul, ol {
+ul,
+ol {
   list-style: none;
 }
 
@@ -314,9 +339,11 @@ ul, ol {
 .mobile-menu-btn.active span:nth-child(1) {
   transform: translateY(7px) rotate(45deg);
 }
+
 .mobile-menu-btn.active span:nth-child(2) {
   opacity: 0;
 }
+
 .mobile-menu-btn.active span:nth-child(3) {
   transform: translateY(-7px) rotate(-45deg);
 }
@@ -422,8 +449,17 @@ ul, ol {
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.85); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
 }
 
 .badge-brand {
@@ -641,8 +677,15 @@ ul, ol {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-12px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
 }
 
 .avatar-img {
@@ -1067,7 +1110,8 @@ ul, ol {
   color: var(--text-main);
 }
 
-.form-input, .form-textarea {
+.form-input,
+.form-textarea {
   width: 100%;
   padding: 0.85rem 1.1rem;
   background: #fbf5ea;
@@ -1079,11 +1123,13 @@ ul, ol {
   transition: all var(--transition-fast);
 }
 
-.form-input::placeholder, .form-textarea::placeholder {
+.form-input::placeholder,
+.form-textarea::placeholder {
   color: rgba(138, 44, 44, 0.45);
 }
 
-.form-input:focus, .form-textarea:focus {
+.form-input:focus,
+.form-textarea:focus {
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(168, 52, 52, 0.12);
   background: #fbf5ea;
@@ -1590,7 +1636,8 @@ ul, ol {
     display: none !important;
   }
 
-  .container, .container-narrow {
+  .container,
+  .container-narrow {
     max-width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -1651,7 +1698,8 @@ ul, ol {
     margin-right: auto;
   }
 
-  .hero-actions, .social-links {
+  .hero-actions,
+  .social-links {
     justify-content: center;
   }
 
