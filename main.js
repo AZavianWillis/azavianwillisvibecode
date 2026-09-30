@@ -31,7 +31,7 @@ function initThemeToggle() {
   themeToggleBtn.addEventListener('click', () => {
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    
+
     document.documentElement.setAttribute('data-theme', newTheme);
     localStorage.setItem('portfolio-theme', newTheme);
   });
@@ -63,17 +63,40 @@ function initMobileNav() {
 }
 
 /* ==========================================================================
-   3. CONTACT FORM SIMULATION & TOAST NOTIFICATION
+   3. CONTACT FORM — SENDS REAL EMAIL + TEXT VIA FORMSUBMIT.CO
    ========================================================================== */
+
+// Where messages go. The first address receives the email; everything in
+// CC_LIST gets a copy. The SMS gateway address turns that copy into a text.
+const CONTACT_CONFIG = {
+  primaryEmail: 'azavian10@icloud.com',
+  ccEmails: ['awil849@lsu.edu'],
+
+  // Text message to (225) 506-6289 via the carrier's email-to-text gateway.
+  // Set this to the one matching the phone's carrier:
+  //   Verizon:        2255066289@vtext.com
+  //   T-Mobile:       2255066289@tmomail.net
+  //   US Cellular:    2255066289@email.uscc.net
+  //   Boost Mobile:   2255066289@sms.myboostmobile.com
+  //   Cricket:        2255066289@mms.cricketwireless.net
+  // Leave it as '' to send email only.
+  smsGateway: ''
+};
+
 function initContactForm() {
   const contactForm = document.getElementById('contact-form');
   if (!contactForm) return;
 
-  contactForm.addEventListener('submit', (e) => {
+  contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const submitBtn = contactForm.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerHTML;
+
+    const name = document.getElementById('contact-name').value.trim();
+    const email = document.getElementById('contact-email').value.trim();
+    const subject = document.getElementById('contact-subject').value.trim();
+    const message = document.getElementById('contact-message').value.trim();
 
     // Loading state
     submitBtn.disabled = true;
@@ -85,12 +108,50 @@ function initContactForm() {
       Sending...
     `;
 
-    setTimeout(() => {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
+    const cc = [...CONTACT_CONFIG.ccEmails];
+    if (CONTACT_CONFIG.smsGateway) cc.push(CONTACT_CONFIG.smsGateway);
+
+    try {
+      const response = await fetch(
+        `https://formsubmit.co/ajax/${CONTACT_CONFIG.primaryEmail}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            name: name,
+            email: email,          // becomes the Reply-To address
+            subject: subject,
+            message: message,
+            _subject: `Portfolio message from ${name}: ${subject}`,
+            _cc: cc.join(','),
+            _template: 'basic',    // plain layout so it reads well as a text
+            _captcha: 'false'
+          })
+        }
+      );
+
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok || result.success === 'false' || result.success === false) {
+        throw new Error(result.message || 'Send failed');
+      }
+
       contactForm.reset();
       showToast('Thank you! Your message has been sent to A\'Zavian Willis.');
-    }, 800);
+    } catch (err) {
+      console.error('Contact form error:', err);
+      // Fallback: open the visitor's own email app with everything filled in
+      const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
+      const to = [CONTACT_CONFIG.primaryEmail, ...CONTACT_CONFIG.ccEmails].join(',');
+      window.location.href =
+        `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${body}`;
+      showToast('Opening your email app to finish sending...');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    }
   });
 }
 
